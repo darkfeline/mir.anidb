@@ -18,10 +18,13 @@ import datetime
 import re
 from typing import Iterable, Optional
 
-from animanager.date import parse_date
-from animanager.xml import XMLTree
+#from animanager.date import parse_date
+#from animanager.xml import XMLTree
 
-from .http import api_request, check_for_errors, get_content
+#from .http import api_request, check_for_errors, get_content
+
+class XMLTree:
+    pass
 
 
 def request_anime(aid: int) -> 'AnimeTree':

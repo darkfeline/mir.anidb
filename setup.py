@@ -17,7 +17,7 @@ from setuptools import setup
 setup(
     name='mir.anidb',
     version='0.1.0',
-    description='Distribution template for the mir namespace',
+    description='AniDB API',
     long_description='',
     keywords='',
     url='https://github.com/darkfeline/mir.anidb',
@@ -31,5 +31,5 @@ setup(
     ],
 
     packages=['mir.anidb'],
-    install_requires=[],
+    install_requires=['requests==2.12.0'],
 )
