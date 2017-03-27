@@ -29,20 +29,14 @@ from typing import NamedTuple
 import xml.etree.ElementTree as ET
 
 from mir.anidb import api
-from mir.anidb._xmlns import XML
+from mir.anidb.anime import unpack_anime_title
 
 logger = logging.getLogger(__name__)
 
 
 class Titles(NamedTuple):
     aid: int
-    titles: 'Tuple[Title]'
-
-
-class Title(NamedTuple):
-    title: str
-    type: str
-    lang: str
+    titles: 'Tuple[AnimeTitle]'
 
 
 class CachedTitlesGetter:
@@ -156,13 +150,5 @@ def _unpack_titles(etree: ET.ElementTree) -> 'Generator':
     for anime in etree.getroot():
         yield Titles(
             aid=int(anime.get('aid')),
-            titles=tuple(_unpack_title(title) for title in anime),
+            titles=tuple(unpack_anime_title(title) for title in anime),
         )
-
-
-def _unpack_title(element: ET.Element) -> 'Title':
-    return Title(
-        title=element.text,
-        type=element.get('type'),
-        lang=element.get(f'{XML}lang'),
-    )

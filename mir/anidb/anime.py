@@ -20,67 +20,30 @@ from typing import NamedTuple
 import xml.etree.ElementTree as ET
 
 from mir.anidb import api
-
-#from animanager.date import parse_date
-#from animanager.xml import XMLTree
+from mir.anidb._xmlns import XML
 
 
 def request_anime(client, aid: int):
     """Make an anime API request."""
     response = api.httpapi_request(client, request='anime', aid=aid)
     etree = api.unpack_xml_response(response)
-    ...
+    return _unpack_anime(etree.getroot())
 
 
-class AnimeTree:
+class Anime(NamedTuple):
+    aid: int
+    type: str
+    episodecount: int
+    startdate: 'Optional[date]'
+    enddate: 'Optional[date]'
+    titles: 'Tuple[AnimeTitle]'
+    episodes: 'Tuple[Episode]'
 
-    """XMLTree repesentation of an anime."""
 
-    @property
-    def aid(self) -> int:
-        """AniDB ID (AID)."""
-        return int(self.root.get('id'))
-
-    @property
-    def type(self) -> str:
-        """Anime type."""
-        return self.root.find('type').text
-
-    @property
-    def episodecount(self) -> int:
-        """Number of episodes."""
-        return int(self.root.find('episodecount').text)
-
-    @property
-    def startdate(self) -> 'Optional[datetime.date]':
-        """Start date of anime."""
-        text = self.root.find('startdate').text
-        try:
-            return parse_date(text)
-        except ValueError:
-            return None
-
-    @property
-    def enddate(self) -> 'Optional[datetime.date]':
-        """End date of anime."""
-        text = self.root.find('enddate').text
-        try:
-            return parse_date(text)
-        except ValueError:
-            return None
-
-    @property
-    def title(self) -> str:
-        """Main title."""
-        for element in self.root.find('titles'):
-            if element.get('type') == 'main':
-                return element.text
-
-    @property
-    def episodes(self) -> 'Iterable[Episode]':
-        """The anime's episodes."""
-        for element in self.root.find('episodes'):
-            yield Episode(element)
+class AnimeTitle(NamedTuple):
+    title: str
+    type: str
+    lang: str
 
 
 class Episode(NamedTuple):
@@ -107,27 +70,65 @@ class EpisodeTitle(NamedTuple):
     lang: str
 
 
-def _unpack_episode(element: ET.Element):
-    return Episode(
-        epno=element.find('epno').text,
-        type=int(element.find('epno').get('type')),
-        length=int(element.find('length').text)
+def _unpack_anime(element: ET.Element) -> Anime:
+    return Anime(
+        aid=int(element.get('id')),
+        type=element.find('type').text,
+        episodecount=int(element.find('episodecount').text),
+        startdate=_parse_date(element.find('startdate').text),
+        enddate=_parse_date(element.find('enddate').text),
+        titles=tuple(unpack_anime_title(title)
+                     for title in element.find('titles')),
+        episodes=tuple(_unpack_episode(ep)
+                       for ep in element.find('episodes')),
     )
 
 
-def _unpack_title(element: ET.Element):
-    for title in element.iterfind('title'):
-        if title.get('xml:lang') == 'ja':
-            return title.text
-    else:
-        # In case there's no Japanese title.
-        return element.find('title').text
+def _parse_date(string: str) -> 'Optional[date]':
+    """Parse an ISO 8601 date (YYYY-mm-dd).
+
+    Returns None if parsing fails.
+
+    >>> _parse_date('1990-01-02')
+    datetime.date(1990, 1, 2)
+    >>> _parse_date('foo') is None
+    True
+    """
+    try:
+        return datetime.datetime.strptime(string, '%Y-%m-%d').date()
+    except ValueError:
+        return None
+
+
+def unpack_anime_title(element: ET.Element) -> 'Title':
+    return AnimeTitle(
+        title=element.text,
+        type=element.get('type'),
+        lang=element.get(f'{XML}lang'),
+    )
+
+
+def _unpack_episode(element: ET.Element):
+    """Unpack Episode from episode XML element."""
+    return Episode(
+        epno=element.find('epno').text,
+        type=int(element.find('epno').get('type')),
+        length=int(element.find('length').text),
+        titles=tuple(_unpack_episode_title(title)
+                     for title in element.find('title')),
+    )
+
+
+def _unpack_episode_title(element: ET.Element):
+    """Unpack EpisodeTitle from title XML element."""
+    return EpisodeTitle(title=element.text,
+                        lang=element.get(f'{XML}lang'))
 
 
 _NUMBER_SUFFIX = re.compile(r'(\d+)$')
 
 
-def _get_episode_number(episode: Episode) -> int:
+def get_episode_number(episode: Episode) -> int:
     """Get the episode number.
 
     The episode number is unique for an anime and episode type, but not
@@ -135,3 +136,15 @@ def _get_episode_number(episode: Episode) -> int:
     """
     match = _NUMBER_SUFFIX.search(episode.epno)
     return int(match.group(1))
+
+
+def get_episode_title(episode: Episode) -> int:
+    """Get the episode title.
+
+    Japanese title is prioritized.
+    """
+    for title in episode.titles:
+        if title.lang == 'ja':
+            return title.title
+    else:
+        return episode.titles[0].title

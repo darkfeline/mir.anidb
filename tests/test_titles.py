@@ -19,6 +19,7 @@ from unittest import mock
 
 import pytest
 
+from mir.anidb.anime import AnimeTitle
 from mir.anidb import titles
 
 
@@ -114,13 +115,14 @@ def test__unpack_titles(testxml):
 _TEST_TITLES = [titles.Titles(
     aid=22,
     titles=(
-        titles.Title(title='Neon Genesis Evangelion',
-                     type='official',
-                     lang='en'),
-        titles.Title(title='Shinseiki Evangelion',
-                     type='main',
-                     lang='x-jat'),
-    ))]
+        AnimeTitle(title='Neon Genesis Evangelion',
+                   type='official',
+                   lang='en'),
+        AnimeTitle(title='Shinseiki Evangelion',
+                   type='main',
+                   lang='x-jat'),
+    ),
+)]
 _TESTXML = Path(__file__).parent / 'data' / 'titles.xml'
 
 
