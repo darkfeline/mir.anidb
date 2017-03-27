@@ -115,7 +115,7 @@ def _unpack_episode(element: ET.Element):
         type=int(element.find('epno').get('type')),
         length=int(element.find('length').text),
         titles=tuple(_unpack_episode_title(title)
-                     for title in element.find('title')),
+                     for title in element.iterfind('title')),
     )
 
 
