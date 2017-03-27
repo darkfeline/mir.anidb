@@ -16,27 +16,23 @@
 
 import datetime
 import re
-from typing import Iterable, Optional
+from typing import NamedTuple
+import xml.etree.ElementTree as ET
+
+from mir.anidb import api
 
 #from animanager.date import parse_date
 #from animanager.xml import XMLTree
 
-#from .http import api_request, check_for_errors, get_content
 
-class XMLTree:
-    pass
-
-
-def request_anime(aid: int) -> 'AnimeTree':
+def request_anime(client, aid: int):
     """Make an anime API request."""
-    response = api_request('anime', aid=aid)
-    content = get_content(response)
-    tree = AnimeTree.fromstring(content)
-    check_for_errors(tree)
-    return tree
+    response = api.httpapi_request(client, request='anime', aid=aid)
+    etree = api.unpack_xml_response(response)
+    ...
 
 
-class AnimeTree(XMLTree):
+class AnimeTree:
 
     """XMLTree repesentation of an anime."""
 
@@ -56,7 +52,7 @@ class AnimeTree(XMLTree):
         return int(self.root.find('episodecount').text)
 
     @property
-    def startdate(self) -> Optional[datetime.date]:
+    def startdate(self) -> 'Optional[datetime.date]':
         """Start date of anime."""
         text = self.root.find('startdate').text
         try:
@@ -65,7 +61,7 @@ class AnimeTree(XMLTree):
             return None
 
     @property
-    def enddate(self) -> Optional[datetime.date]:
+    def enddate(self) -> 'Optional[datetime.date]':
         """End date of anime."""
         text = self.root.find('enddate').text
         try:
@@ -81,57 +77,61 @@ class AnimeTree(XMLTree):
                 return element.text
 
     @property
-    def episodes(self) -> Iterable['Episode']:
+    def episodes(self) -> 'Iterable[Episode]':
         """The anime's episodes."""
         for element in self.root.find('episodes'):
             yield Episode(element)
 
 
-class Episode:
+class Episode(NamedTuple):
+    """Episode record.
 
-    """Episode XML element."""
+    epno is a concatenation of type string and episode number.  It should be
+    unique among the episodes for an anime, so it can serve as a unique
+    identifier.
 
-    _NUMBER_SUFFIX = re.compile(r'(\d+)$')
+    type is the episode type code, which is an int.
 
-    def __init__(self, element):
-        self.element = element
+    length is the length of the episode in minutes.
 
-    @property
-    def epno(self) -> str:
-        """Concatenation of type and episode number.
+    title is the episode title.
+    """
+    epno: str
+    type: int
+    length: int
+    titles: 'Tuple[EpisodeTitle]'
 
-        Unique for an anime.
 
-        """
-        return self.element.find('epno').text
+class EpisodeTitle(NamedTuple):
+    title: str
+    lang: str
 
-    @property
-    def number(self) -> int:
-        """Episode number.
 
-        Unique for an anime and episode type, but not unique across episode
-        types for the same anime.
+def _unpack_episode(element: ET.Element):
+    return Episode(
+        epno=element.find('epno').text,
+        type=int(element.find('epno').get('type')),
+        length=int(element.find('length').text)
+    )
 
-        """
-        epno = self.element.find('epno').text
-        match = self._NUMBER_SUFFIX.search(epno)
-        return int(match.group(1))
 
-    @property
-    def type(self) -> int:
-        """Episode type."""
-        return int(self.element.find('epno').get('type'))
-
-    @property
-    def length(self) -> int:
-        """Length of episode in minutes."""
-        return int(self.element.find('length').text)
-
-    @property
-    def title(self) -> str:
-        """Episode title."""
-        for title in self.element.iterfind('title'):
-            if title.get('xml:lang') == 'ja':
-                return title.text
+def _unpack_title(element: ET.Element):
+    for title in element.iterfind('title'):
+        if title.get('xml:lang') == 'ja':
+            return title.text
+    else:
         # In case there's no Japanese title.
-        return self.element.find('title').text
+        return element.find('title').text
+
+
+_NUMBER_SUFFIX = re.compile(r'(\d+)$')
+
+
+def _get_episode_number(episode: Episode) -> int:
+    """Get the episode number.
+
+    The episode number is unique for an anime and episode type, but not
+    across episode types for the same anime.
+    """
+    match = _NUMBER_SUFFIX.search(episode.epno)
+    return int(match.group(1))

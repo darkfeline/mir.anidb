@@ -79,17 +79,14 @@ def test_PickleCache_load_cache_missing(tmpdir):
 
 def test_PickleCache_save_load(tmpdir):
     cache = titles.PickleCache(tmpdir / 'foo')
-    titles_list = [titles.Titles(aid=1, main_title='Foo', titles=('Foo',))]
+    titles_list = _TEST_TITLES
     cache.save(titles_list)
     assert cache.load() == titles_list
 
 
 def test_api_requester(testrequest, tmpdir):
     got = titles.api_requester()
-    assert got == [titles.Titles(
-        aid=22,
-        main_title='Shinseiki Evangelion',
-        titles=('Neon Genesis Evangelion', 'Shinseiki Evangelion'))]
+    assert got == _TEST_TITLES
 
 
 def test_CopyingRequester_repr(tmpdir):
@@ -99,10 +96,7 @@ def test_CopyingRequester_repr(tmpdir):
 
 def test_CopyingRequester(testrequest, tmpdir):
     got = titles.CopyingRequester(tmpdir / 'copy.xml')()
-    assert got == [titles.Titles(
-        aid=22,
-        main_title='Shinseiki Evangelion',
-        titles=('Neon Genesis Evangelion', 'Shinseiki Evangelion'))]
+    assert got == _TEST_TITLES
 
 
 def test_CopyingRequester_saves_xml_copy(testrequest, tmpdir):
@@ -114,18 +108,19 @@ def test_CopyingRequester_saves_xml_copy(testrequest, tmpdir):
 def test__unpack_titles(testxml):
     etree = ET.parse(testxml)
     got = list(titles._unpack_titles(etree))
-    assert got == [titles.Titles(
-        aid=22,
-        main_title='Shinseiki Evangelion',
-        titles=('Neon Genesis Evangelion', 'Shinseiki Evangelion'))]
+    assert got == _TEST_TITLES
 
 
-def test__get_main_title_missing_main():
-    anime = ET.Element('anime')
-    with pytest.raises(ValueError):
-        titles._get_main_title(anime)
-
-
+_TEST_TITLES = [titles.Titles(
+    aid=22,
+    titles=(
+        titles.Title(title='Neon Genesis Evangelion',
+                     type='official',
+                     lang='en'),
+        titles.Title(title='Shinseiki Evangelion',
+                     type='main',
+                     lang='x-jat'),
+    ))]
 _TESTXML = Path(__file__).parent / 'data' / 'titles.xml'
 
 
