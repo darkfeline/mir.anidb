@@ -1,0 +1,85 @@
+<anime id="22" restricted="false">
+<type>TV Series</type>
+<episodecount>26</episodecount>
+<startdate>1995-10-04</startdate>
+<enddate>1996-03-27</enddate>
+<titles>
+<title type="main" xml:lang="x-jat">Shinseiki Evangelion</title>
+<title type="official" xml:lang="en">Neon Genesis Evangelion</title>
+</titles>
+<relatedanime>
+<anime id="202" type="Sequel">Shinseiki Evangelion Gekijouban: The End of Evangelion</anime>
+</relatedanime>
+<similaranime>
+<anime approval="40" id="4861" total="68">Bokura no</anime>
+<anime approval="21" id="8069" total="48">Mahou Shoujo Madoka Magica</anime>
+</similaranime>
+<recommendations total="57">
+<recommendation type="Recommended" uid="143269">nothing to say</recommendation>
+<recommendation type="Must See" uid="269092">Sublime</recommendation>
+</recommendations>
+<url>http://www.gainax.co.jp/anime/eva/</url>
+<creators>
+<name id="57" type="Direction">Anno Hideaki</name>
+<name id="1955" type="Music">Sagisu Shirou</name>
+</creators>
+<description>In the year 2015, the Angels, huge, tremendously powerful, alien war machines, appear in Tokyo for the second time. The only hope for mankind`s survival lies in the Evangelion, a humanoid fighting machine developed by http://anidb.net/ch5009 [NERV], a special United Nations agency. Capable of withstanding anything the Angels can dish out, the Evangelions` one drawback lies in the limited number of people able to pilot them. Only a handful of teenagers, all born fourteen years ago, nine months after the Angels first appeared, are able to interface with an Evangelion.
+One such teenager is http://anidb.net/ch309 [Ikari Shinji], whose father heads the NERV team that developed and maintains the Evangelions. Thrust into a maelstrom of battles and events that he does not understand, Shinji is forced to plumb the depths of his own inner resources for the courage and strength to not only fight, but to survive, or risk losing everything.</description>
+<ratings>
+<permanent count="13944">7.72</permanent>
+<temporary count="14292">8.27</temporary>
+<review count="30">8.08</review>
+</ratings>
+<picture>133461.jpg</picture>
+<resources>
+<resource type="1">
+<externalentity>
+<identifier>49</identifier>
+</externalentity>
+</resource>
+<resource type="4">
+<externalentity>
+<url>http://www.gainax.co.jp/anime/eva/</url>
+</externalentity>
+</resource>
+</resources>
+<tags>
+<tag globalspoiler="false" id="520" localspoiler="false" parentid="6149" update="2014-10-14" verified="false" weight="0">
+<name>nopan</name>
+<description>The character foregoes underwear.</description>
+<picurl>162753.jpg</picurl>
+</tag>
+</tags>
+<characters>
+<character id="310" type="main character in" update="2016-03-02">
+<rating votes="1481">7.92</rating>
+<name>Ayanami Rei</name>
+<gender>female</gender>
+<charactertype id="1">Character</charactertype>
+<description>The First Child, and the pilot of Unit 00. At the start of the series, she is shown to be socially withdrawn, seemingly emotionless, and remote, with her only apparent relationship being with Ikari Gendou.
+As the series progresses, she and Shinji grow closer. It is eventually revealed that Rei is a vessel for the soul of the Angel Lilith, and was some kind of clone created specifically by Gendou to be used as a tool for accomplishing Instrumentality. Soulless clones of her are kept hidden in the deepest levels of Nerv headquarters to be used as the supposed "cores" of the Dummy Plugs and as replacement bodies for Rei if she should die.</description>
+<picture>59479.png</picture>
+<seiyuu id="13" picture="16583.jpg">Hayashibara Megumi</seiyuu>
+</character>
+</characters>
+<episodes>
+<episode id="113" update="2011-10-20">
+<epno type="1">1</epno>
+<length>25</length>
+<airdate>1995-10-04</airdate>
+<rating votes="51">5.91</rating>
+<title xml:lang="ja">&#20351;&#24466;, &#35186;&#26469;</title>
+<title xml:lang="en">Angel Attack!</title>
+<title xml:lang="de">Angriff der Engel</title>
+<title xml:lang="fr">L`attaque de l`Ange</title>
+<title xml:lang="pl">Atak Anio&#322;a</title>
+<title xml:lang="pt">Ataque do Anjo</title>
+<title xml:lang="x-jat">Shito, Shuurai</title>
+</episode>
+<episode id="28864" update="2005-08-21">
+<epno type="2">S1</epno>
+<length>75</length>
+<title xml:lang="en">Revival of Evangelion Extras Disc</title>
+</episode>
+</episodes>
+</anime>
