@@ -20,6 +20,13 @@ import requests_mock
 from mir.anidb import api
 
 
+def test_titles_request():
+    with requests_mock.Mocker() as m:
+        m.get('http://anidb.net/api/anime-titles.xml.gz', text='ok')
+        got = api.titles_request()
+    assert got.text == 'ok'
+
+
 def test_client_eq():
     assert api.Client('foo', 1) == api.Client('foo', 1)
 

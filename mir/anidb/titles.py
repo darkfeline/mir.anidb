@@ -21,11 +21,11 @@ but it's really just fetching a single XML file with all the titles
 data.
 """
 
-import functools
+import abc
 import logging
 from pathlib import Path
 import pickle
-from urllib.request import urlopen
+from typing import NamedTuple
 import xml.etree.ElementTree as ET
 
 from mir.anidb import api
@@ -33,161 +33,132 @@ from mir.anidb import api
 logger = logging.getLogger(__name__)
 
 
-def request_titles() -> 'Titles':
-    """Request AniDB titles file."""
-    response = urlopen('http://anidb.net/api/anime-titles.xml.gz')
-    etree = api.unpack_response(response)
-    return Titles(etree)
+class Titles(NamedTuple):
+    aid: int
+    main_title: str
+    titles: 'Tuple[str]'
 
 
-class Titles:
+class CachedTitlesGetter:
 
-    """XMLTree representation of AniDB anime titles."""
+    """Cached getter for work titles.
 
-    def __init__(self, root: ET.ElementTree):
-        self._root = root
+    cache is a Cache subclass.  requester is a function that is
+    responsible for returning a list of titles.
+    """
 
-    @classmethod
-    def load(cls, file):
-        return cls(ET.parse(file))
+    def __init__(self, cache, requester):
+        self._cache = cache
+        self._requester = requester
 
-    def dump(self, file):
-        self._root.write(file)
+    def __repr__(self):
+        cls = type(self).__qualname__
+        return f'{cls}({self._cache!r}, {self._requester!r})'
 
-    def search(self, query: 're.Pattern'):
-        """Search titles using a compiled RE query."""
-        return sorted(self._get_work(anime)
-                      for anime in self._find(query))
+    def get(self, force=False) -> 'List[Titles]':
+        """Get list of Titles.
 
-    def _find(self, query: 're.Pattern'):
-        """Yield anime that match the search query."""
-        for anime in self._root:
-            for title in anime:
-                if query.search(title.text):
-                    yield anime
-                    break
-
-    def _get_work(self, element: ET.Element):
-        return Work(
-            aid=int(element.attrib['aid']),
-            main_title=self._get_main_title(element),
-            titles=tuple(title.text for title in element),
-        )
-
-    def _get_main_title(self, anime: 'Element'):
-        """Get main title of anime Element."""
-        for title in anime:
-            if title.attrib['type'] == 'main':
-                return title.text
+        Pass force=True to bypass the cache.
+        """
+        try:
+            if force:
+                raise CacheMissingError
+            return self._cache.load()
+        except CacheMissingError:
+            titles = self._requester()
+            self._cache.save(titles)
+            return titles
 
 
-@functools.total_ordering
-class Work:
+class Cache(abc.ABC):
 
-    __slots__ = ('aid', 'main_title', 'titles')
+    """Abstract base class for Titles caches."""
 
-    def __init__(self, aid, main_title, titles):
-        self.aid = aid
-        self.main_title = main_title
-        self.titles = titles
+    @abc.abstractmethod
+    def load(self) -> 'List[Titles]':
+        """Load work titles from the cache.
 
-    def __eq__(self, other):
-        if isinstance(other, type(self)):
-            return self.aid == other.aid
-        else:
-            return NotImplemented
+        Raises _CacheMissingError if cache could not be loaded.
+        """
+        raise CacheMissingError
 
-    def __lt__(self, other):
-        if isinstance(other, type(self)):
-            return self.aid < other.aid
-        else:
-            return NotImplemented
+    @abc.abstractmethod
+    def save(self, titles):
+        """Save work titles to the cache."""
 
 
-class TitlesFetcher:
-
-    """Fetches titles, utilizing a local cache."""
-
-    def __init__(self, cachedir: 'PathLike'):
-        self._cachedir = Path(cachedir)
-        self._caches = [
-            _PickleCache(self._pickle_file),
-            _FileCache(self._titles_file),
-        ]
-
-    def get_titles(self, force=False) -> Titles:
-        titles: Titles
-        missing: 'List[Cache]'
-        if force:
-            titles, missing = None, self._caches
-        else:
-            titles, missing = self._load_from_caches()
-        if titles is None:
-            titles = request_titles()
-        self._make_missing_caches(titles, missing)
-        return titles
-
-    def _load_from_caches(self):
-        titles = None
-        missing = []
-        for cache in self._caches:
-            try:
-                titles = cache.load()
-            except Exception as e:
-                logger.warning('Error loading cache %r: %s', cache, e)
-                missing.append(cache)
-            else:
-                break
-        return titles, missing
-
-    def _make_missing_caches(self, titles, missing):
-        for cache in reversed(missing):
-            cache.dump(titles)
-
-    @property
-    def _titles_file(self):
-        """Anime titles data file path."""
-        return self._cachedir / 'anime-titles.xml'
-
-    @property
-    def _pickle_file(self):
-        """Pickled anime titles data file path."""
-        return self._cachedir / 'anime-titles.pickle'
+class CacheMissingError(Exception):
+    """Cache could not be loaded."""
 
 
-class _PickleCache:
+class PickleCache(Cache):
 
     _PROTOCOL = 4
 
-    def __init__(self, file):
-        self._file = file
+    def __init__(self, path: 'PathLike'):
+        self._path = Path(path)
 
     def __repr__(self):
         cls = type(self).__qualname__
-        return f'{cls}({self._file!r})'
+        return f'{cls}({str(self._path)!r})'
 
-    def load(self):
-        with self._file.open('rb') as file:
-            return pickle.load(file, protocol=self._PROTOCOL)
+    def load(self) -> 'List[Titles]':
+        try:
+            with self._path.open('rb') as file:
+                return pickle.load(file)
+        except IOError:
+            raise CacheMissingError
 
-    def dump(self, titles: Titles):
-        with self._file.open('wb') as file:
+    def save(self, titles):
+        with self._path.open('wb') as file:
             pickle.dump(titles, file, protocol=self._PROTOCOL)
 
 
-class _FileCache:
+def api_requester() -> 'List[Titles]':
+    """Request Titles from AniDB API."""
+    etree = _request_titles_xml()
+    return list(_unpack_titles(etree))
 
-    def __init__(self, file):
-        self._file = file
+
+class CopyingRequester:
+
+    """Request Titles from AniDB API, saving a copy of the XML."""
+
+    def __init__(self, path: 'PathLike'):
+        self._path = Path(path)
 
     def __repr__(self):
         cls = type(self).__qualname__
-        return f'{cls}({self._file!r})'
+        return f'{cls}({str(self._path)!r})'
 
-    def load(self):
-        with self._file.open('r') as file:
-            return Titles.load(file)
+    def __call__(self) -> 'List[Titles]':
+        """Request titles from AniDB API."""
+        etree = _request_titles_xml()
+        with self._path.open('wb') as file:
+            etree.write(file)
+        return list(_unpack_titles(etree))
 
-    def dump(self, titles: Titles):
-        with self._file.open('w') as file:
-            titles.dump(file)
+
+def _request_titles_xml() -> ET.ElementTree:
+    """Request AniDB titles file."""
+    response = api.titles_request()
+    return api.unpack_xml_response(response)
+
+
+def _unpack_titles(etree: ET.ElementTree) -> 'Generator':
+    """Unpack Titles from titles XML."""
+    for anime in etree.getroot():
+        yield Titles(
+            aid=int(anime.attrib['aid']),
+            main_title=_get_main_title(anime),
+            titles=tuple(title.text for title in anime),
+        )
+
+
+def _get_main_title(anime: ET.Element) -> str:
+    """Get main title of anime Element."""
+    for title in anime:
+        if title.attrib['type'] == 'main':
+            return title.text
+    else:
+        raise ValueError('Missing main title')

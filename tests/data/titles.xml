@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<animetitles>
+	<anime aid="22">
+		<title type="official" xml:lang="en">Neon Genesis Evangelion</title>
+		<title xml:lang="x-jat" type="main">Shinseiki Evangelion</title>
+	</anime>
+</animetitles>
+
+<!-- Created: Sun Jan  8 03:00:26 2017 (9992 anime, 52371 titles) -->

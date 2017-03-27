@@ -12,14 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This module contains classes for working with AniDB's HTTP API."""
+"""Low level API for AniDB.
 
-import gzip
+https://wiki.anidb.net/w/API
+"""
+
 import io
 from typing import NamedTuple
 import xml.etree.ElementTree as ET
 
 import requests
+
+
+def titles_request() -> 'Response':
+    """Request titles.
+
+    https://wiki.anidb.net/w/API#Anime_Titles
+    """
+    return requests.get('http://anidb.net/api/anime-titles.xml.gz')
 
 
 class Client(NamedTuple):
@@ -28,7 +38,10 @@ class Client(NamedTuple):
 
 
 def httpapi_request(client, **params) -> 'Response':
-    """https://wiki.anidb.net/w/HTTP_API_Definition"""
+    """Send a request to AniDB HTTP API.
+
+    https://wiki.anidb.net/w/HTTP_API_Definition
+    """
     return requests.get(
         'http://api.anidb.net:9001/httpapi',
         params={
@@ -40,7 +53,7 @@ def httpapi_request(client, **params) -> 'Response':
 
 
 def unpack_xml_response(response) -> ET.ElementTree:
-    """Unpack AniDB API XML response."""
+    """Unpack an XML response from AniDB API."""
     etree: ET.ElementTree = ET.parse(io.StringIO(response.text))
     _check_for_errors(etree)
     return etree
