@@ -12,3 +12,5 @@ mir.anidb README
    :alt: PyPI Release
 
 AniDB API.
+
+Refer to the code and tests for SemVer public API.
