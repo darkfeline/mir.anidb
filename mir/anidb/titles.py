@@ -93,6 +93,8 @@ class CacheMissingError(Exception):
 
 class PickleCache(Cache):
 
+    """Cache implemented with pickle."""
+
     _PROTOCOL = 4
 
     def __init__(self, path: 'PathLike'):
