@@ -1,5 +1,5 @@
 mir.anidb Release Notes
-===========================
+=======================
 
 This project uses `semantic versioning <http://semver.org/>`_.
 
