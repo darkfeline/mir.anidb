@@ -55,8 +55,8 @@ _DATADIR = Path(__file__).parent / 'data'
 def _load_obj(path):
     """Load an object from a Python file.
 
-The file is executed and the obj local is returned.
-"""
+    The file is executed and the obj local is returned.
+    """
     localdict = {}
     with open(path) as file:
         exec(file.read(), localdict, localdict)
