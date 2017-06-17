@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
-import io
 from pathlib import Path
 from unittest import mock
 
@@ -21,16 +19,16 @@ import pytest
 
 from mir.anidb import api
 from mir.anidb import anime
-from mir.anidb.anime import AnimeTitle
-from mir.anidb.anime import Episode
-from mir.anidb.anime import EpisodeTitle
 
 
-def test_request_anime(testrequest):
+def test_request_anime(test_xml):
+    xml, obj = test_xml
     client = api.Client('foo', 1)
-    got = anime.request_anime(client, 22)
-    testrequest.assert_called_once_with(client, request='anime', aid=22)
-    assert got == _TEST_ANIME
+    with mock.patch('mir.anidb.api.httpapi_request') as request:
+        request.return_value = FakeResponse(xml)
+        got = anime.request_anime(client, 22)
+    request.assert_called_once_with(client, request='anime', aid=22)
+    assert got == obj
 
 
 def test_get_episode_number():
@@ -51,54 +49,40 @@ def test_get_episode_title_fallback():
     assert got == 'Revival of Evangelion Extras Disc'
 
 
-_TEST_ANIME = anime.Anime(
-    aid=22,
-    type='TV Series',
-    episodecount=26,
-    startdate=datetime.date(1995, 10, 4),
-    enddate=datetime.date(1996, 3, 27),
-    titles=(
-        AnimeTitle(title='Shinseiki Evangelion',
-                         type='main',
-                         lang='x-jat'),
-        AnimeTitle(title='Neon Genesis Evangelion',
-                         type='official',
-                         lang='en'),
-    ),
-    episodes=(
-        Episode(
-            epno='1',
-            type=1,
-            length=25,
-            titles=(
-                EpisodeTitle(title='\u4f7f\u5f92, \u8972\u6765', lang='ja'),
-                EpisodeTitle(title='Angel Attack!', lang='en'),
-                EpisodeTitle(title='Shito, Shuurai', lang='x-jat'),
-            )),
-        Episode(
-            epno='S1',
-            type=2,
-            length=75,
-            titles=(
-                EpisodeTitle(title='Revival of Evangelion Extras Disc',
-                             lang='en'),
-            )),
-    ),
-)
-_TESTXML = Path(__file__).parent / 'data' / 'anime.xml'
+_DATADIR = Path(__file__).parent / 'data'
+
+
+def _load_obj(path):
+    """Load an object from a Python file.
+
+The file is executed and the obj local is returned.
+"""
+    localdict = {}
+    with open(path) as file:
+        exec(file.read(), localdict, localdict)
+    return localdict['obj']
+
+
+_TEST_ANIME = _load_obj(_DATADIR / 'anime.py')
+
+
+@pytest.fixture(params=[
+    (_DATADIR / 'anime.xml', _DATADIR / 'anime.py'),
+])
+def test_xml(request):
+    xml_path, obj_path = request.param
+    with open(xml_path) as file:
+        xml = file.read()
+    obj = _load_obj(obj_path)
+    return xml, obj
 
 
 @pytest.fixture
-def testxml():
-    with open(_TESTXML) as file:
-        return io.StringIO(file.read())
-
-
-@pytest.fixture
-def testrequest(testxml):
+def test_request(testxml):
+    xml, obj = testxml
     with mock.patch('mir.anidb.api.httpapi_request') as request:
-        request.return_value = FakeResponse(testxml.getvalue())
-        yield request
+        request.return_value = FakeResponse(xml)
+        yield request, obj
 
 
 class FakeResponse:
