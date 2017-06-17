@@ -6,6 +6,11 @@ This project uses `semantic versioning <http://semver.org/>`_.
 1.0.1 ()
 --------
 
+Fixed
+^^^^^
+
+- Fixed anime parsing failure due to missing date.
+
 1.0.0 (2017-05-21)
 ------------------
 

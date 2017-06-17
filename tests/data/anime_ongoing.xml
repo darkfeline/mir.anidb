@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><anime id="11223" restricted="false">
+<type>TV Series</type>
+<episodecount>24</episodecount>
+<startdate>2017-04-08</startdate>
+<titles>
+<title xml:lang="x-jat" type="main">Shingeki no Bahamut: Virgin Soul</title>
+</titles>
+<relatedanime>
+<anime id="10373" type="Prequel">Shingeki no Bahamut: Genesis</anime>
+</relatedanime>
+<url>http://shingekinobahamut-virginsoul.jp/</url>
+<creators>
+<name id="6065" type="Chief Animation Direction">Hayama Kenji</name>
+</creators>
+<ratings>
+<permanent count="78">7.57</permanent>
+<temporary count="82">7.46</temporary>
+</ratings>
+<picture>199126.jpg</picture>
+<resources>
+<resource type="1">
+<externalentity>
+<identifier>18190</identifier>
+</externalentity>
+</resource>
+<resource type="2">
+<externalentity>
+<identifier>30736</identifier>
+</externalentity>
+</resource>
+<resource type="4">
+<externalentity>
+<url>http://shingekinobahamut-virginsoul.jp/</url>
+</externalentity>
+</resource>
+<resource type="8">
+<externalentity>
+<identifier>4550</identifier>
+</externalentity>
+</resource>
+<resource type="9">
+<externalentity>
+<identifier>356333</identifier>
+</externalentity>
+</resource>
+</resources>
+<tags>
+<tag id="6242" parentid="2607" weight="0" localspoiler="false" globalspoiler="false" verified="true" update="2014-10-29">
+<name>death</name>
+</tag>
+</tags>
+<characters>
+</characters>
+<episodes>
+<episode id="186394" update="2017-03-25">
+<epno type="1">4</epno>
+<length>25</length>
+<airdate>2017-04-29</airdate>
+<rating votes="4">8.21</rating>
+<title xml:lang="ja">Firestarter</title>
+<title xml:lang="en">Firestarter</title>
+<title xml:lang="x-jat">Firestarter</title>
+</episode>
+</episodes>
+</anime>

@@ -68,6 +68,7 @@ _TEST_ANIME = _load_obj(_DATADIR / 'anime.py')
 
 @pytest.fixture(params=[
     (_DATADIR / 'anime.xml', _DATADIR / 'anime.py'),
+    (_DATADIR / 'anime_ongoing.xml', _DATADIR / 'anime_ongoing.py'),
 ])
 def test_xml(request):
     xml_path, obj_path = request.param

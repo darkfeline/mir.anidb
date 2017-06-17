@@ -15,6 +15,7 @@
 """AniDB HTTP anime API."""
 
 import datetime
+from functools import partial
 import re
 from typing import NamedTuple
 import xml.etree.ElementTree as ET
@@ -71,17 +72,32 @@ class EpisodeTitle(NamedTuple):
 
 
 def _unpack_anime(element: ET.Element) -> Anime:
+    t = partial(_find_element_text, element)
     return Anime(
         aid=int(element.get('id')),
-        type=element.find('type').text,
-        episodecount=int(element.find('episodecount').text),
-        startdate=_parse_date(element.find('startdate').text),
-        enddate=_parse_date(element.find('enddate').text),
-        titles=tuple(unpack_anime_title(title)
-                     for title in element.find('titles')),
-        episodes=tuple(_unpack_episode(ep)
-                       for ep in element.find('episodes')),
+        type=t('type'),
+        episodecount=int(t('episodecount')),
+        startdate=_parse_date(t('startdate', default='')),
+        enddate=_parse_date(t('enddate', default='')),
+        titles=tuple(unpack_anime_title(title) for title in element.find('titles')),
+        episodes=tuple(_unpack_episode(ep) for ep in element.find('episodes')),
     )
+
+
+def _find_element_text(element, match, default=None):
+    """Find a matching subelement and return its text.
+
+    If default is given, return it if a matching subelement is not
+    found.  Otherwise, ValueError is raised.
+    """
+    child = element.find(match)
+    try:
+        return child.text
+    except AttributeError:
+        if default is not None:
+            return default
+        else:
+            raise ValueError
 
 
 def _parse_date(string: str) -> 'Optional[date]':
