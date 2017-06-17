@@ -13,14 +13,14 @@
 # limitations under the License.
 
 import io
-from pathlib import Path
 import xml.etree.ElementTree as ET
 from unittest import mock
 
 import pytest
 
-from mir.anidb.anime import AnimeTitle
 from mir.anidb import titles
+
+from . import testlib
 
 
 def test_CachedTitlesGetter_repr():
@@ -85,9 +85,12 @@ def test_PickleCache_save_load(tmpdir):
     assert cache.load() == titles_list
 
 
-def test_api_requester(testrequest, tmpdir):
-    got = titles.api_requester()
-    assert got == _TEST_TITLES
+def test_api_requester(test_xml, tmpdir):
+    xml, obj = test_xml
+    with mock.patch('mir.anidb.api.titles_request') as request:
+        request.return_value = testlib.FakeResponse(xml)
+        got = titles.api_requester()
+    assert got == obj
 
 
 def test_CopyingRequester_repr(tmpdir):
@@ -95,51 +98,39 @@ def test_CopyingRequester_repr(tmpdir):
     assert repr(requester) == "CopyingRequester('tmp')"
 
 
-def test_CopyingRequester(testrequest, tmpdir):
-    got = titles.CopyingRequester(tmpdir / 'copy.xml')()
-    assert got == _TEST_TITLES
-
-
-def test_CopyingRequester_saves_xml_copy(testrequest, tmpdir):
-    copy = tmpdir / 'copy.xml'
-    got = titles.CopyingRequester(copy)()
-    assert list(titles._unpack_titles(ET.parse(copy))) == got
-
-
-def test__unpack_titles(testxml):
-    etree = ET.parse(testxml)
-    got = list(titles._unpack_titles(etree))
-    assert got == _TEST_TITLES
-
-
-_TEST_TITLES = [titles.Titles(
-    aid=22,
-    titles=(
-        AnimeTitle(title='Neon Genesis Evangelion',
-                   type='official',
-                   lang='en'),
-        AnimeTitle(title='Shinseiki Evangelion',
-                   type='main',
-                   lang='x-jat'),
-    ),
-)]
-_TESTXML = Path(__file__).parent / 'data' / 'titles.xml'
-
-
-@pytest.fixture
-def testxml():
-    with open(_TESTXML) as file:
-        return io.StringIO(file.read())
-
-
-@pytest.fixture
-def testrequest(testxml):
+def test_CopyingRequester(test_xml, tmpdir):
+    xml, obj = test_xml
+    copypath = tmpdir / 'copy.xml'
     with mock.patch('mir.anidb.api.titles_request') as request:
-        request.return_value = FakeResponse(testxml.getvalue())
-        yield request
+        request.return_value = testlib.FakeResponse(xml)
+        got = titles.CopyingRequester(copypath)()
+    assert got == obj
 
 
-class FakeResponse:
+def test_CopyingRequester_saves_xml_copy(test_xml, tmpdir):
+    xml, obj = test_xml
+    copypath = tmpdir / 'copy.xml'
+    with mock.patch('mir.anidb.api.titles_request') as request:
+        request.return_value = testlib.FakeResponse(xml)
+        got = titles.CopyingRequester(copypath)()
+    assert list(titles._unpack_titles(ET.parse(copypath))) == got
 
-    def __init__(self, text):
-        self.text = text
+
+def test__unpack_titles(test_xml):
+    xml, obj = test_xml
+    etree = ET.parse(io.StringIO(xml))
+    got = list(titles._unpack_titles(etree))
+    assert got == obj
+
+
+_TEST_TITLES = testlib.load_obj('titles.py')
+
+
+@pytest.fixture(params=[
+    ('titles.xml', 'titles.py'),
+])
+def test_xml(request):
+    xml_path, obj_path = request.param
+    xml = testlib.load_text(xml_path)
+    obj = testlib.load_obj(obj_path)
+    return xml, obj
