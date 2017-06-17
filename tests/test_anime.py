@@ -16,7 +16,6 @@ from unittest import mock
 
 import pytest
 
-from mir.anidb import api
 from mir.anidb import anime
 
 from . import testlib
