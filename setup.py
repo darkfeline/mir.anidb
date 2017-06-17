@@ -16,7 +16,7 @@ from setuptools import setup
 
 setup(
     name='mir.anidb',
-    version='1.0.1',
+    version='1.0.2',
     description='AniDB API',
     long_description='',
     keywords='',
