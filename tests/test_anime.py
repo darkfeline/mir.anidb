@@ -31,6 +31,15 @@ def test_request_anime(test_xml, client):
     assert got == obj
 
 
+def test_request_anime_bad(client):
+    xml = testlib.load_text('anime_bad.xml')
+    with mock.patch('mir.anidb.api.httpapi_request') as request:
+        request.return_value = testlib.FakeResponse(xml)
+        with pytest.raises(ValueError):
+            anime.request_anime(client, 22)
+    request.assert_called_once_with(client, request='anime', aid=22)
+
+
 def test_get_episode_number():
     ep = _TEST_ANIME.episodes[1]
     got = anime.get_episode_number(ep)
