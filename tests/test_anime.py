@@ -22,9 +22,8 @@ from mir.anidb import anime
 from . import testlib
 
 
-def test_request_anime(test_xml):
+def test_request_anime(test_xml, client):
     xml, obj = test_xml
-    client = api.Client('foo', 1)
     with mock.patch('mir.anidb.api.httpapi_request') as request:
         request.return_value = testlib.FakeResponse(xml)
         got = anime.request_anime(client, 22)

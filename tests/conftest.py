@@ -16,6 +16,13 @@ import pathlib
 
 import pytest
 
+from mir.anidb import api
+
+
+@pytest.fixture
+def client():
+    return api.Client('foo', 1)
+
 
 @pytest.fixture
 def tmpdir(tmpdir_factory):
