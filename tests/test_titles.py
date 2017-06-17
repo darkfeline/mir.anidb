@@ -30,7 +30,7 @@ def test_CachedTitlesGetter_repr():
         "CachedTitlesGetter(sentinel.cache, sentinel.requester)"
 
 
-def test_CachedTitlesGetter_get_cache_force():
+def test_CachedTitlesGetter_get_cache_force_should_skip_cache():
     cache = mock.create_autospec(titles.Cache, instance=True)
     requester = mock.create_autospec(titles.api_requester)
     requester.return_value = mock.sentinel.titles
@@ -41,7 +41,7 @@ def test_CachedTitlesGetter_get_cache_force():
     cache.load.assert_not_called()
 
 
-def test_CachedTitlesGetter_get_cache_miss():
+def test_CachedTitlesGetter_get_cache_miss_should_call_requester():
     cache = mock.create_autospec(titles.Cache, instance=True)
     requester = mock.create_autospec(titles.api_requester)
     requester.return_value = mock.sentinel.titles
@@ -52,7 +52,7 @@ def test_CachedTitlesGetter_get_cache_miss():
     cache.save.assert_called_once_with(mock.sentinel.titles)
 
 
-def test_CachedTitlesGetter_get_cache_hit():
+def test_CachedTitlesGetter_get_cache_hit_should_skip_requester():
     cache = mock.create_autospec(titles.Cache, instance=True)
     requester = mock.create_autospec(titles.api_requester)
     cache.load.return_value = mock.sentinel.titles
