@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import Path
 from unittest import mock
 
 import pytest
@@ -20,12 +19,14 @@ import pytest
 from mir.anidb import api
 from mir.anidb import anime
 
+from . import testlib
+
 
 def test_request_anime(test_xml):
     xml, obj = test_xml
     client = api.Client('foo', 1)
     with mock.patch('mir.anidb.api.httpapi_request') as request:
-        request.return_value = FakeResponse(xml)
+        request.return_value = testlib.FakeResponse(xml)
         got = anime.request_anime(client, 22)
     request.assert_called_once_with(client, request='anime', aid=22)
     assert got == obj
@@ -49,36 +50,15 @@ def test_get_episode_title_fallback():
     assert got == 'Revival of Evangelion Extras Disc'
 
 
-_DATADIR = Path(__file__).parent / 'data'
-
-
-def _load_obj(path):
-    """Load an object from a Python file.
-
-    The file is executed and the obj local is returned.
-    """
-    localdict = {}
-    with open(path) as file:
-        exec(file.read(), localdict, localdict)
-    return localdict['obj']
-
-
-_TEST_ANIME = _load_obj(_DATADIR / 'anime.py')
+_TEST_ANIME = testlib.load_obj('anime.py')
 
 
 @pytest.fixture(params=[
-    (_DATADIR / 'anime.xml', _DATADIR / 'anime.py'),
-    (_DATADIR / 'anime_ongoing.xml', _DATADIR / 'anime_ongoing.py'),
+    ('anime.xml', 'anime.py'),
+    ('anime_ongoing.xml', 'anime_ongoing.py'),
 ])
 def test_xml(request):
     xml_path, obj_path = request.param
-    with open(xml_path) as file:
-        xml = file.read()
-    obj = _load_obj(obj_path)
+    xml = testlib.load_text(xml_path)
+    obj = testlib.load_obj(obj_path)
     return xml, obj
-
-
-class FakeResponse:
-
-    def __init__(self, text):
-        self.text = text
