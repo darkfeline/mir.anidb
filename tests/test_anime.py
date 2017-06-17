@@ -77,14 +77,6 @@ def test_xml(request):
     return xml, obj
 
 
-@pytest.fixture
-def test_request(testxml):
-    xml, obj = testxml
-    with mock.patch('mir.anidb.api.httpapi_request') as request:
-        request.return_value = FakeResponse(xml)
-        yield request, obj
-
-
 class FakeResponse:
 
     def __init__(self, text):
