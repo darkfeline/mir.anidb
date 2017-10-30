@@ -122,6 +122,14 @@ def api_requester() -> 'List[Titles]':
     return list(_unpack_titles(etree))
 
 
+async def async_api_requester(session) -> 'List[Titles]':
+    """Request Titles from AniDB API."""
+    response = api.async_titles_request(session)
+    text = await response.text()
+    etree = api.unpack_xml(text)
+    return list(_unpack_titles(etree))
+
+
 class CopyingRequester:
 
     """Request Titles from AniDB API, saving a copy of the XML."""
