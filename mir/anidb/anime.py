@@ -71,6 +71,31 @@ class EpisodeTitle(NamedTuple):
     lang: str
 
 
+_NUMBER_SUFFIX = re.compile(r'(\d+)$')
+
+
+def get_episode_number(episode: Episode) -> int:
+    """Get the episode number.
+
+    The episode number is unique for an anime and episode type, but not
+    across episode types for the same anime.
+    """
+    match = _NUMBER_SUFFIX.search(episode.epno)
+    return int(match.group(1))
+
+
+def get_episode_title(episode: Episode) -> int:
+    """Get the episode title.
+
+    Japanese title is prioritized.
+    """
+    for title in episode.titles:
+        if title.lang == 'ja':
+            return title.title
+    else:
+        return episode.titles[0].title
+
+
 def _unpack_anime(element: ET.Element) -> Anime:
     t = partial(_find_element_text, element)
     return Anime(
@@ -139,28 +164,3 @@ def _unpack_episode_title(element: ET.Element):
     """Unpack EpisodeTitle from title XML element."""
     return EpisodeTitle(title=element.text,
                         lang=element.get(f'{XML}lang'))
-
-
-_NUMBER_SUFFIX = re.compile(r'(\d+)$')
-
-
-def get_episode_number(episode: Episode) -> int:
-    """Get the episode number.
-
-    The episode number is unique for an anime and episode type, but not
-    across episode types for the same anime.
-    """
-    match = _NUMBER_SUFFIX.search(episode.epno)
-    return int(match.group(1))
-
-
-def get_episode_title(episode: Episode) -> int:
-    """Get the episode title.
-
-    Japanese title is prioritized.
-    """
-    for title in episode.titles:
-        if title.lang == 'ja':
-            return title.title
-    else:
-        return episode.titles[0].title
