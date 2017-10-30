@@ -23,13 +23,16 @@ import xml.etree.ElementTree as ET
 
 import requests
 
+_TITLES = 'http://anidb.net/api/anime-titles.xml.gz'
+_HTTPAPI = 'http://api.anidb.net:9001/httpapi'
+
 
 def titles_request() -> 'Response':
     """Request titles.
 
     https://wiki.anidb.net/w/API#Anime_Titles
     """
-    return requests.get('http://anidb.net/api/anime-titles.xml.gz')
+    return requests.get(_TITLES)
 
 
 class Client(NamedTuple):
@@ -43,7 +46,7 @@ def httpapi_request(client, **params) -> 'Response':
     https://wiki.anidb.net/w/HTTP_API_Definition
     """
     return requests.get(
-        'http://api.anidb.net:9001/httpapi',
+        _HTTPAPI,
         params={
             'client': client.name,
             'clientver': client.version,
