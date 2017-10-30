@@ -21,6 +21,8 @@ import requests_mock
 
 from mir.anidb import api
 
+from . import testlib
+
 
 def test_titles_request():
     with requests_mock.Mocker() as m:
@@ -32,7 +34,7 @@ def test_titles_request():
 def test_async_titles_request(loop):
     async def test():
         session = mock.create_autospec(aiohttp.ClientSession, instance=True)
-        session.get.return_value = StubClientResponse('ok')
+        session.get.return_value = testlib.StubClientResponse('ok')
         response = api.async_titles_request(session)
         return await response.text()
     got = loop.run_until_complete(test())
@@ -60,7 +62,7 @@ def test_async_httpapi_request(loop):
 
     async def test():
         session = mock.create_autospec(aiohttp.ClientSession, instance=True)
-        session.get.return_value = StubClientResponse('ok')
+        session.get.return_value = testlib.StubClientResponse('ok')
         response = api.async_httpapi_request(session, client, request='anime')
         return await response.text()
     got = loop.run_until_complete(test())
@@ -77,12 +79,3 @@ def test__check_for_errors():
 def test_unpack_xml():
     got = api.unpack_xml('<test></test>')
     assert isinstance(got, ET.ElementTree)
-
-
-class StubClientResponse:
-
-    def __init__(self, text):
-        self._text = text
-
-    async def text(self):
-        return self._text

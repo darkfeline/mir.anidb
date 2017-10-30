@@ -43,3 +43,12 @@ class FakeResponse:
 
     def __init__(self, text):
         self.text = text
+
+
+class StubClientResponse:
+
+    def __init__(self, text):
+        self._text = text
+
+    async def text(self):
+        return self._text
