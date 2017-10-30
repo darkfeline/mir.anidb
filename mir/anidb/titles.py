@@ -123,7 +123,7 @@ def api_requester() -> 'List[Titles]':
 
 
 async def async_api_requester(session) -> 'List[Titles]':
-    """Request Titles from AniDB API."""
+    """Request Titles asynchronously from AniDB API."""
     response = api.async_titles_request(session)
     text = await response.text()
     etree = api.unpack_xml(text)
