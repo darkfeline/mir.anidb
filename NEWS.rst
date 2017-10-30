@@ -11,6 +11,7 @@ Added
 
 - The titles API is now `request_titles` and `async_request_titles`,
   the same as the anime API.
+- Added `get_main_title`.
 
 Deprecated
 ^^^^^^^^^^

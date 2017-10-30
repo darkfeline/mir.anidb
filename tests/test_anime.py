@@ -18,6 +18,7 @@ import aiohttp
 import pytest
 
 from mir.anidb import anime
+from mir.anidb.anime import AnimeTitle
 
 from . import testlib
 
@@ -78,6 +79,21 @@ def test_get_episode_title_fallback():
     ep = _TEST_ANIME.episodes[1]
     got = anime.get_episode_title(ep)
     assert got == 'Revival of Evangelion Extras Disc'
+
+
+def test_get_main_title():
+    got = anime.get_main_title(_TEST_ANIME.titles)
+    assert got == 'Shinseiki Evangelion'
+
+
+def test_get_main_title_when_missing():
+    titles = [
+        AnimeTitle(title='Neon Genesis Evangelion',
+                   type='official',
+                   lang='en'),
+    ]
+    with pytest.raises(anime.MissingMainTitleError):
+        anime.get_main_title(titles)
 
 
 _TEST_ANIME = testlib.load_obj('anime.py')

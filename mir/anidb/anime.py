@@ -104,6 +104,18 @@ def get_episode_title(episode: Episode) -> int:
         return episode.titles[0].title
 
 
+def get_main_title(titles: 'Iterable[AnimeTitle]'):
+    """Get the main anime title."""
+    for title in titles:
+        if title.type == 'main':
+            return title.title
+    raise MissingMainTitleError
+
+
+class MissingMainTitleError(ValueError):
+    pass
+
+
 class MissingElementError(Exception):
     pass
 
