@@ -56,49 +56,6 @@ def test_CachedTitlesGetter_get_cache_hit_should_skip_requester():
     assert getter.get() == mock.sentinel.cached_titles
 
 
-def test_AsyncCachedTitlesGetter_repr():
-    getter = titles.AsyncCachedTitlesGetter(
-        mock.sentinel.cache, mock.sentinel.requester)
-    assert repr(getter) == \
-        "AsyncCachedTitlesGetter(sentinel.cache, sentinel.requester)"
-
-
-def test_AsyncCachedTitlesGetter_get_cache_force_should_skip_cache(loop):
-    cache = _FakeCache()
-    cache.save(mock.sentinel.cached_titles)
-    requester = _StubAsyncRequester([mock.sentinel.titles])
-    getter = titles.AsyncCachedTitlesGetter(cache, requester)
-
-    async def test():
-        return await getter.get(force=True)
-    got = loop.run_until_complete(test())
-    assert got == mock.sentinel.titles
-
-
-def test_AsyncCachedTitlesGetter_get_cache_miss_should_call_requester(loop):
-    cache = _FakeCache()
-    requester = _StubAsyncRequester([mock.sentinel.titles])
-    getter = titles.AsyncCachedTitlesGetter(cache, requester)
-
-    async def test():
-        return await getter.get()
-    got = loop.run_until_complete(test())
-    assert got == mock.sentinel.titles
-    assert cache.load() == mock.sentinel.titles
-
-
-def test_AsyncCachedTitlesGetter_get_cache_hit_should_skip_requester(loop):
-    cache = _FakeCache()
-    cache.save(mock.sentinel.cached_titles)
-    requester = _StubAsyncRequester([])
-    getter = titles.AsyncCachedTitlesGetter(cache, requester)
-
-    async def test():
-        return await getter.get()
-    got = loop.run_until_complete(test())
-    assert got == mock.sentinel.cached_titles
-
-
 def test_Cache_load():
     with pytest.raises(titles.CacheMissingError):
         titles.Cache.load(mock.sentinel.dummy)
@@ -205,18 +162,6 @@ class _StubRequester:
         self._values = collections.deque(values)
 
     def __call__(self):
-        if self._values:
-            return self._values.popleft()
-        else:  # pragma: no cover
-            raise _UnexpectedCallError
-
-
-class _StubAsyncRequester:
-
-    def __init__(self, values):
-        self._values = collections.deque(values)
-
-    async def __call__(self):
         if self._values:
             return self._values.popleft()
         else:  # pragma: no cover

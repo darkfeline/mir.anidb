@@ -70,37 +70,6 @@ class CachedTitlesGetter:
             return titles
 
 
-class AsyncCachedTitlesGetter:
-
-    """Async Cached getter for work titles.
-
-    cache is a Cache subclass.  requester is an async function that is
-    responsible for returning a list of titles.
-    """
-
-    def __init__(self, cache, requester):
-        self._cache = cache
-        self._requester = requester
-
-    def __repr__(self):
-        cls = type(self).__qualname__
-        return f'{cls}({self._cache!r}, {self._requester!r})'
-
-    async def get(self, force=False) -> 'List[Titles]':
-        """Get list of Titles.
-
-        Pass force=True to bypass the cache.
-        """
-        try:
-            if force:
-                raise CacheMissingError
-            return self._cache.load()
-        except CacheMissingError:
-            titles = await self._requester()
-            self._cache.save(titles)
-            return titles
-
-
 class Cache(abc.ABC):
 
     """Abstract base class for Titles caches."""
