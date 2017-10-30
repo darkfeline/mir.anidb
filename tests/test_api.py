@@ -49,17 +49,14 @@ def test_client_not_eq():
     assert api.Client('foo', 2) != api.Client('foo', 1)
 
 
-def test_httpapi_request():
-    client = api.Client('foo', 2)
+def test_httpapi_request(client):
     with requests_mock.Mocker() as m:
         m.get('http://api.anidb.net:9001/httpapi', text='ok')
         got = api.httpapi_request(client, request='anime')
     assert got.text == 'ok'
 
 
-def test_async_httpapi_request(loop):
-    client = api.Client('foo', 2)
-
+def test_async_httpapi_request(client, loop):
     async def test():
         session = mock.create_autospec(aiohttp.ClientSession, instance=True)
         session.get.return_value = testlib.StubClientResponse('ok')
