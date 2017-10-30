@@ -36,7 +36,7 @@ def titles_request() -> 'Response':
 
 
 def async_titles_request(session) -> 'Response':
-    """Request titles.
+    """Request titles asynchronously.
 
     https://wiki.anidb.net/w/API#Anime_Titles
     """
