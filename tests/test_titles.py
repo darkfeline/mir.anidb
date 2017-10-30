@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import aiohttp
+import collections
 import io
 import xml.etree.ElementTree as ET
 from unittest import mock
@@ -32,35 +33,27 @@ def test_CachedTitlesGetter_repr():
 
 
 def test_CachedTitlesGetter_get_cache_force_should_skip_cache():
-    cache = mock.create_autospec(titles.Cache, instance=True)
-    requester = mock.create_autospec(titles.api_requester)
-    requester.return_value = mock.sentinel.titles
-    cache.load.return_value = mock.sentinel.bad_titles
+    cache = _FakeCache()
+    cache.save(mock.sentinel.cached_titles)
+    requester = _StubRequester([mock.sentinel.titles])
     getter = titles.CachedTitlesGetter(cache, requester)
     assert getter.get(force=True) == mock.sentinel.titles
-    requester.assert_called_once_with()
-    cache.load.assert_not_called()
 
 
 def test_CachedTitlesGetter_get_cache_miss_should_call_requester():
-    cache = mock.create_autospec(titles.Cache, instance=True)
-    requester = mock.create_autospec(titles.api_requester)
-    requester.return_value = mock.sentinel.titles
-    cache.load.side_effect = titles.CacheMissingError
+    cache = _FakeCache()
+    requester = _StubRequester([mock.sentinel.titles])
     getter = titles.CachedTitlesGetter(cache, requester)
     assert getter.get() == mock.sentinel.titles
-    requester.assert_called_once_with()
-    cache.save.assert_called_once_with(mock.sentinel.titles)
+    assert cache.load() == mock.sentinel.titles
 
 
 def test_CachedTitlesGetter_get_cache_hit_should_skip_requester():
-    cache = mock.create_autospec(titles.Cache, instance=True)
-    requester = mock.create_autospec(titles.api_requester)
-    cache.load.return_value = mock.sentinel.titles
+    cache = _FakeCache()
+    cache.save(mock.sentinel.cached_titles)
+    requester = _StubRequester([])
     getter = titles.CachedTitlesGetter(cache, requester)
-    assert getter.get() == mock.sentinel.titles
-    requester.assert_not_called()
-    cache.load.assert_called_once_with()
+    assert getter.get() == mock.sentinel.cached_titles
 
 
 def test_Cache_load():
@@ -146,3 +139,34 @@ def test_xml(request):
     xml = testlib.load_text(xml_path)
     obj = testlib.load_obj(obj_path)
     return xml, obj
+
+
+class _FakeCache(titles.Cache):
+
+    def __init__(self):
+        self._titles = None
+
+    def load(self):
+        if self._titles is None:
+            raise titles.CacheMissingError
+        else:
+            return self._titles
+
+    def save(self, titles):
+        self._titles = titles
+
+
+class _StubRequester:
+
+    def __init__(self, values):
+        self._values = collections.deque(values)
+
+    def __call__(self):
+        if self._values:
+            return self._values.popleft()
+        else:  # pragma: no cover
+            raise _UnexpectedCallError
+
+
+class _UnexpectedCallError(Exception):
+    pass
