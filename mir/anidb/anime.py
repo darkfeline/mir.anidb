@@ -27,7 +27,7 @@ from mir.anidb._xmlns import XML
 def request_anime(client, aid: int) -> 'Anime':
     """Make an anime API request."""
     response = api.httpapi_request(client, request='anime', aid=aid)
-    etree = api.unpack_xml_response(response)
+    etree = api.unpack_xml(response.text)
     return _unpack_anime(etree.getroot())
 
 

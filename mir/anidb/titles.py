@@ -144,7 +144,7 @@ class CopyingRequester:
 def _request_titles_xml() -> ET.ElementTree:
     """Request AniDB titles file."""
     response = api.titles_request()
-    return api.unpack_xml_response(response)
+    return api.unpack_xml(response.text)
 
 
 def _unpack_titles(etree: ET.ElementTree) -> 'Generator':

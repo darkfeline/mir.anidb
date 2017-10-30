@@ -74,16 +74,9 @@ def test__check_for_errors():
     assert excinfo.value.args == ('Banned',)
 
 
-def test_unpack_xml_response():
-    response = FakeResponse('<test></test>')
-    got = api.unpack_xml_response(response)
+def test_unpack_xml():
+    got = api.unpack_xml('<test></test>')
     assert isinstance(got, ET.ElementTree)
-
-
-class FakeResponse:
-
-    def __init__(self, text):
-        self.text = text
 
 
 class StubClientResponse:

@@ -78,9 +78,9 @@ def async_httpapi_request(session: 'ClientSession', client, **params) -> 'Client
         })
 
 
-def unpack_xml_response(response) -> ET.ElementTree:
-    """Unpack an XML response from AniDB API."""
-    etree: ET.ElementTree = ET.parse(io.StringIO(response.text))
+def unpack_xml(text) -> ET.ElementTree:
+    """Unpack an XML string from AniDB API."""
+    etree: ET.ElementTree = ET.parse(io.StringIO(text))
     _check_for_errors(etree)
     return etree
 
