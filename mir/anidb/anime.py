@@ -96,6 +96,10 @@ def get_episode_title(episode: Episode) -> int:
         return episode.titles[0].title
 
 
+class MissingElementError(Exception):
+    pass
+
+
 def _unpack_anime(element: ET.Element) -> Anime:
     t = partial(_find_element_text, element)
     return Anime(
@@ -122,7 +126,7 @@ def _find_element_text(element, match, default=None):
         if default is not None:
             return default
         else:
-            raise ValueError
+            raise MissingElementError(element, match)
 
 
 def _parse_date(string: str) -> 'Optional[date]':

@@ -9,6 +9,7 @@ This project uses `semantic versioning <http://semver.org/>`_.
 Changed
 ^^^^^^^
 
+- `request_anime` raises `MissingElementError` instead of `ValueError`.
 - Use `pipenv` instead of `tox` for development.
 
 1.0.1 (2017-06-17)
