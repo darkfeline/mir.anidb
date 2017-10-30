@@ -26,6 +26,7 @@ import logging
 from pathlib import Path
 import pickle
 from typing import NamedTuple
+import warnings
 import xml.etree.ElementTree as ET
 
 from mir.anidb import api
@@ -48,6 +49,8 @@ class CachedTitlesGetter:
     """
 
     def __init__(self, cache, requester):
+        warnings.warn('CachedTitlesGetter is deprecated',
+                      DeprecationWarning)
         self._cache = cache
         self._requester = requester
 
@@ -98,6 +101,8 @@ class PickleCache(Cache):
     _PROTOCOL = 4
 
     def __init__(self, path: 'PathLike'):
+        warnings.warn('PickleCache is deprecated',
+                      DeprecationWarning)
         self._path = Path(path)
 
     def __repr__(self):
@@ -117,12 +122,24 @@ class PickleCache(Cache):
 
 
 def api_requester() -> 'List[Titles]':
+    warnings.warn('api_requester is deprecated; use request_titles',
+                  DeprecationWarning)
+    return request_titles()
+
+
+def async_api_requester(session):
+    warnings.warn('async_api_requester is deprecated; use async_request_titles',
+                  DeprecationWarning)
+    return async_request_titles(session)
+
+
+def request_titles() -> 'List[Titles]':
     """Request Titles from AniDB API."""
     etree = _request_titles_xml()
     return list(_unpack_titles(etree))
 
 
-async def async_api_requester(session) -> 'List[Titles]':
+async def async_request_titles(session) -> 'List[Titles]':
     """Request Titles asynchronously from AniDB API."""
     response = api.async_titles_request(session)
     text = await response.text()
@@ -135,6 +152,8 @@ class CopyingRequester:
     """Request Titles from AniDB API, saving a copy of the XML."""
 
     def __init__(self, path: 'PathLike'):
+        warnings.warn('CopyingRequester is deprecated',
+                      DeprecationWarning)
         self._path = Path(path)
 
     def __repr__(self):

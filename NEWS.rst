@@ -3,6 +3,23 @@ mir.anidb Release Notes
 
 This project uses `semantic versioning <http://semver.org/>`_.
 
+1.2.0 ()
+--------
+
+Added
+^^^^^
+
+- The titles API is now `request_titles` and `async_request_titles`,
+  the same as the anime API.
+
+Deprecated
+^^^^^^^^^^
+
+- `CachedTitlesGetter` and all related classes and functions are
+  deprecated.  This logic should be implemented by the client.
+  Furthermore, the way it is implemented in `mir.anidb` is
+  unnecessarily complex.
+
 1.1.0 (2017-10-29)
 ------------------
 
