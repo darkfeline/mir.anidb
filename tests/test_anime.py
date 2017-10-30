@@ -14,6 +14,7 @@
 
 from unittest import mock
 
+import aiohttp
 import pytest
 
 from mir.anidb import anime
@@ -37,6 +38,28 @@ def test_request_anime_bad(client):
         with pytest.raises(anime.MissingElementError):
             anime.request_anime(client, 22)
     request.assert_called_once_with(client, request='anime', aid=22)
+
+
+def test_async_request_anime(loop, test_xml, client):
+    xml, obj = test_xml
+
+    async def test():
+        session = mock.create_autospec(aiohttp.ClientSession, instance=True)
+        session.get.return_value = testlib.StubClientResponse(xml)
+        return await anime.async_request_anime(session, client, 22)
+    got = loop.run_until_complete(test())
+    assert got == obj
+
+
+def test_async_request_anime_bad(loop, client):
+    xml = testlib.load_text('anime_bad.xml')
+
+    async def test():
+        session = mock.create_autospec(aiohttp.ClientSession, instance=True)
+        session.get.return_value = testlib.StubClientResponse(xml)
+        with pytest.raises(anime.MissingElementError):
+            await anime.async_request_anime(session, client, 22)
+    loop.run_until_complete(test())
 
 
 def test_get_episode_number():
