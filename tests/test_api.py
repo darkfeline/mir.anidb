@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import asyncio
+from unittest import mock
 import xml.etree.ElementTree as ET
 
+import aiohttp
 import pytest
 import requests_mock
 
@@ -25,6 +28,16 @@ def test_titles_request():
         m.get('http://anidb.net/api/anime-titles.xml.gz', text='ok')
         got = api.titles_request()
     assert got.text == 'ok'
+
+
+def test_async_titles_request(loop):
+    async def test():
+        session = mock.create_autospec(aiohttp.ClientSession, instance=True)
+        session.get.return_value = StubClientResponse('ok')
+        response = api.async_titles_request(session)
+        return await response.text()
+    got = loop.run_until_complete(test())
+    assert got == 'ok'
 
 
 def test_client_eq():
@@ -41,6 +54,18 @@ def test_httpapi_request():
         m.get('http://api.anidb.net:9001/httpapi', text='ok')
         got = api.httpapi_request(client, request='anime')
     assert got.text == 'ok'
+
+
+def test_async_httpapi_request(loop):
+    client = api.Client('foo', 2)
+
+    async def test():
+        session = mock.create_autospec(aiohttp.ClientSession, instance=True)
+        session.get.return_value = StubClientResponse('ok')
+        response = api.async_httpapi_request(session, client, request='anime')
+        return await response.text()
+    got = loop.run_until_complete(test())
+    assert got == 'ok'
 
 
 def test__check_for_errors():
@@ -60,3 +85,12 @@ class FakeResponse:
 
     def __init__(self, text):
         self.text = text
+
+
+class StubClientResponse:
+
+    def __init__(self, text):
+        self._text = text
+
+    async def text(self):
+        return self._text

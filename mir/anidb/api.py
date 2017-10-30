@@ -35,6 +35,14 @@ def titles_request() -> 'Response':
     return requests.get(_TITLES)
 
 
+def async_titles_request(session) -> 'Response':
+    """Request titles.
+
+    https://wiki.anidb.net/w/API#Anime_Titles
+    """
+    return session.get(_TITLES)
+
+
 class Client(NamedTuple):
     name: str
     version: int
@@ -46,6 +54,21 @@ def httpapi_request(client, **params) -> 'Response':
     https://wiki.anidb.net/w/HTTP_API_Definition
     """
     return requests.get(
+        _HTTPAPI,
+        params={
+            'client': client.name,
+            'clientver': client.version,
+            'protover': 1,
+            **params
+        })
+
+
+def async_httpapi_request(session: 'ClientSession', client, **params) -> 'ClientResponse':
+    """Send an asynchronous request to AniDB HTTP API.
+
+    https://wiki.anidb.net/w/HTTP_API_Definition
+    """
+    return session.get(
         _HTTPAPI,
         params={
             'client': client.name,
