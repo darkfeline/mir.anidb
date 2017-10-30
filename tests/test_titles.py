@@ -85,7 +85,7 @@ def test_PickleCache_save_load(tmpdir):
     assert cache.load() == titles_list
 
 
-def test_api_requester(test_xml, tmpdir):
+def test_api_requester(test_xml):
     xml, obj = test_xml
     with mock.patch('mir.anidb.api.titles_request') as request:
         request.return_value = testlib.FakeResponse(xml)
@@ -93,7 +93,7 @@ def test_api_requester(test_xml, tmpdir):
     assert got == obj
 
 
-def test_CopyingRequester_repr(tmpdir):
+def test_CopyingRequester_repr():
     requester = titles.CopyingRequester('tmp')
     assert repr(requester) == "CopyingRequester('tmp')"
 
