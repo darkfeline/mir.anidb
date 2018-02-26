@@ -33,8 +33,9 @@ def request_anime(client, aid: int) -> 'Anime':
 
 async def async_request_anime(session, client, aid: int) -> 'Anime':
     """Make an async anime API request."""
-    response = api.async_httpapi_request(session, client, request='anime', aid=aid)
-    text = await response.text()
+    async with api.async_httpapi_request(
+            session, client, request='anime', aid=aid) as resp:
+        text = await resp.text()
     etree = api.unpack_xml(text)
     return _unpack_anime(etree.getroot())
 

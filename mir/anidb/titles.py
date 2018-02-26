@@ -141,8 +141,8 @@ def request_titles() -> 'List[Titles]':
 
 async def async_request_titles(session) -> 'List[Titles]':
     """Request Titles asynchronously from AniDB API."""
-    response = api.async_titles_request(session)
-    text = await response.text()
+    async with api.async_titles_request(session) as resp:
+        text = await resp.text()
     etree = api.unpack_xml(text)
     return list(_unpack_titles(etree))
 

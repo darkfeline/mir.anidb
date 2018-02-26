@@ -3,12 +3,11 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 
 [packages]
-aiohttp = "~=2.3"
+aiohttp = "~=3.0"
 requests = "~=2.18"
 
 [dev-packages]
 pytest = "~=3.2"
-"pytest-catchlog" = "~=1.2"
 "pytest-cov" = "~=2.5"
 "twine" = "~=1.9"
 "requests-mock" = "~=1.3"

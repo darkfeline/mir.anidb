@@ -10,3 +10,4 @@ __pycache__/
 /.coverage
 /.tox/
 /.pytest/
+/.pytest_cache/
