@@ -3,8 +3,8 @@ mir.anidb Release Notes
 
 This project uses `semantic versioning <http://semver.org/>`_.
 
-2.0.0 ()
---------
+2.0.0 (2018-05-26)
+------------------
 
 Removed
 ^^^^^^^
