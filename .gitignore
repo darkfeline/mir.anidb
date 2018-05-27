@@ -1,13 +1,17 @@
+# Python
 __pycache__/
+
+# Tags
+/TAGS
 
 # Build artifacts
 /build/
 /dist/
+/pydoc/
 /*.egg-info/
 
 # Test artifacts
-/.cache/
-/.coverage
-/.tox/
 /.pytest/
 /.pytest_cache/
+/coverage.xml
+/.coverage
