@@ -43,18 +43,3 @@ class FakeResponse:
 
     def __init__(self, text):
         self.text = text
-
-
-class StubClientResponse:
-
-    def __init__(self, text):
-        self._text = text
-
-    async def text(self):
-        return self._text
-
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        pass

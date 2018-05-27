@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import aiohttp
 import collections
 import io
 import xml.etree.ElementTree as ET
@@ -87,33 +86,11 @@ def test_api_requester(test_xml):
     assert got == obj
 
 
-def test_async_api_requester(loop, test_xml):
-    xml, obj = test_xml
-
-    async def test():
-        session = mock.create_autospec(aiohttp.ClientSession, instance=True)
-        session.get.return_value = testlib.StubClientResponse(xml)
-        return await titles.async_api_requester(session)
-    got = loop.run_until_complete(test())
-    assert got == obj
-
-
 def test_request_titles(test_xml):
     xml, obj = test_xml
     with mock.patch('mir.anidb.api.titles_request') as request:
         request.return_value = testlib.FakeResponse(xml)
         got = titles.request_titles()
-    assert got == obj
-
-
-def test_async_request_titles(loop, test_xml):
-    xml, obj = test_xml
-
-    async def test():
-        session = mock.create_autospec(aiohttp.ClientSession, instance=True)
-        session.get.return_value = testlib.StubClientResponse(xml)
-        return await titles.async_request_titles(session)
-    got = loop.run_until_complete(test())
     assert got == obj
 
 

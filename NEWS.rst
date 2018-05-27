@@ -3,6 +3,14 @@ mir.anidb Release Notes
 
 This project uses `semantic versioning <http://semver.org/>`_.
 
+2.0.0 ()
+--------
+
+Removed
+^^^^^^^
+
+- Removed async API.  It's not very useful and adds maintenance hassle and dependencies.
+
 1.2.1 (2018-02-26)
 ------------------
 

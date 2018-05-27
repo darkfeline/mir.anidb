@@ -15,7 +15,6 @@
 from unittest import mock
 import xml.etree.ElementTree as ET
 
-import aiohttp
 import pytest
 import requests_mock
 
@@ -31,16 +30,6 @@ def test_titles_request():
     assert got.text == 'ok'
 
 
-def test_async_titles_request(loop):
-    async def test():
-        session = mock.create_autospec(aiohttp.ClientSession, instance=True)
-        session.get.return_value = testlib.StubClientResponse('ok')
-        response = api.async_titles_request(session)
-        return await response.text()
-    got = loop.run_until_complete(test())
-    assert got == 'ok'
-
-
 def test_client_eq():
     assert api.Client('foo', 1) == api.Client('foo', 1)
 
@@ -54,16 +43,6 @@ def test_httpapi_request(client):
         m.get('http://api.anidb.net:9001/httpapi', text='ok')
         got = api.httpapi_request(client, request='anime')
     assert got.text == 'ok'
-
-
-def test_async_httpapi_request(client, loop):
-    async def test():
-        session = mock.create_autospec(aiohttp.ClientSession, instance=True)
-        session.get.return_value = testlib.StubClientResponse('ok')
-        response = api.async_httpapi_request(session, client, request='anime')
-        return await response.text()
-    got = loop.run_until_complete(test())
-    assert got == 'ok'
 
 
 def test__check_for_errors():

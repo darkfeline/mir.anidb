@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import asyncio
 import pathlib
 
 import pytest
@@ -23,11 +22,6 @@ from mir.anidb import api
 @pytest.fixture
 def client():
     return api.Client('foo', 1)
-
-
-@pytest.fixture
-def loop():
-    return asyncio.get_event_loop()
 
 
 @pytest.fixture

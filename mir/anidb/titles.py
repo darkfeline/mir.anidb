@@ -127,23 +127,9 @@ def api_requester() -> 'List[Titles]':
     return request_titles()
 
 
-def async_api_requester(session):
-    warnings.warn('async_api_requester is deprecated; use async_request_titles',
-                  DeprecationWarning)
-    return async_request_titles(session)
-
-
 def request_titles() -> 'List[Titles]':
     """Request Titles from AniDB API."""
     etree = _request_titles_xml()
-    return list(_unpack_titles(etree))
-
-
-async def async_request_titles(session) -> 'List[Titles]':
-    """Request Titles asynchronously from AniDB API."""
-    async with api.async_titles_request(session) as resp:
-        text = await resp.text()
-    etree = api.unpack_xml(text)
     return list(_unpack_titles(etree))
 
 
