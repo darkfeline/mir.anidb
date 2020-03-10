@@ -43,6 +43,6 @@ setup(
 
     packages=['mir.anidb'],
     install_requires=[
-        'requests~=2.18.0',
+        'requests~=2.23.0',
     ],
 )
