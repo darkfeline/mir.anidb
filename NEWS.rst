@@ -3,6 +3,11 @@ mir.anidb Release Notes
 
 This project uses `semantic versioning <http://semver.org/>`_.
 
+2.0.2 (2020-04-21)
+------------------
+
+Updated dependencies.
+
 2.0.1 (2020-03-29)
 ------------------
 
