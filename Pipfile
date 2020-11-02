@@ -6,7 +6,7 @@ verify_ssl = true
 requests = "~=2.23"
 
 [dev-packages]
-pytest = "~=3.4"
-"pytest-cov" = "~=2.5"
+pytest = "~=4.6"
+"pytest-cov" = "~=2.10"
 "twine" = "~=3.1"
 "requests-mock" = "~=1.3"
